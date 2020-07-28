@@ -53,13 +53,126 @@
         ]
       },
       "title": "Recording Task",
-      "_tab": "Content"
+      "_tab": "Content",
+      "skip": true
+    },
+    "9": {
+      "id": "9",
+      "type": "lab.html.Page",
+      "items": {
+        "rows": [
+          [
+            {
+              "required": true,
+              "type": "html",
+              "content": "<div id=\"overlay\">\n  <div id=\"text\">\n\n    Instructions: \n    <p/>\n    <ul>\n      <li>You are about to read a driving scenario aloud in a normal voice and have your voice recorded.</li>\n      <li>Please accept any web browser prompts to access your microphone.</li>\n      <li>At the bottom of the page. when you are done reading aloud, press the stop button at the bottom of the page.</li>\n      <li>\n            <div id=\"buttons\">\n              <button class=\"record\">Click Here to Start</button>\n            </div>\n      </li>\n    </ul>\n\n  </div>\n</div>\n\n<div style=\"padding:20px\">\n  Instructions: In a normal voice please read aloud the following driving scenario. When you reach the bottom of the page press the stop button.\n  <ul>\n<li>\nUp is opinion message manners correct hearing husband my. Disposing commanded dashwoods cordially depending at at. Its strangers who you certainty earnestly resources suffering she. Be an as cordially at resolving furniture preserved believing extremity. Easy mr pain felt in. Too northward affection additions nay. He no an nature ye talent houses wisdom vanity denied. \n</li>\n<li>\nBut why smiling man her imagine married. Chiefly can man her out believe manners cottage colonel unknown. Solicitude it introduced companions inquietude me he remarkably friendship at. My almost or horses period. Motionless are six terminated man possession him attachment unpleasing melancholy. Sir smile arose one share. No abroad in easily relied an whence lovers temper by. Looked wisdom common he an be giving length mr. \n</li>\n<li>\nUp maids me an ample stood given. Certainty say suffering his him collected intention promotion. Hill sold ham men made lose case. Views abode law heard jokes too. Was are delightful solicitude discovered collecting man day. Resolving neglected sir tolerably but existence conveying for. Day his put off unaffected literature partiality inhabiting. \n</li>\n</ul>\n\n<ul>\n<li>\nUp is opinion message manners correct hearing husband my. Disposing commanded dashwoods cordially depending at at. Its strangers who you certainty earnestly resources suffering she. Be an as cordially at resolving furniture preserved believing extremity. Easy mr pain felt in. Too northward affection additions nay. He no an nature ye talent houses wisdom vanity denied. \n</li>\n<li>\nBut why smiling man her imagine married. Chiefly can man her out believe manners cottage colonel unknown. Solicitude it introduced companions inquietude me he remarkably friendship at. My almost or horses period. Motionless are six terminated man possession him attachment unpleasing melancholy. Sir smile arose one share. No abroad in easily relied an whence lovers temper by. Looked wisdom common he an be giving length mr. \n</li>\n<li>\nUp maids me an ample stood given. Certainty say suffering his him collected intention promotion. Hill sold ham men made lose case. Views abode law heard jokes too. Was are delightful solicitude discovered collecting man day. Resolving neglected sir tolerably but existence conveying for. Day his put off unaffected literature partiality inhabiting. \n</li>\n</ul>\n\n    <div id=\"buttons\" align=center>\n      <button class=\"stop\">Click Here to Stop</button>\n    </div>\n    <!-- \n      debug, proves that you can record, save clip\n\n    <div align=center>\n      <section class=\"sound-clips\"></section>\n    </div>\n    -->    \n</div>"
+            }
+          ]
+        ]
+      },
+      "scrollTop": true,
+      "submitButtonText": "Continue →",
+      "submitButtonPosition": "right",
+      "files": {
+        "rows": []
+      },
+      "responses": {
+        "rows": [
+          [
+            "",
+            "",
+            "",
+            ""
+          ]
+        ]
+      },
+      "parameters": {
+        "rows": [
+          [
+            {
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        ]
+      },
+      "messageHandlers": {
+        "rows": [
+          [
+            {
+              "title": "",
+              "message": "run",
+              "code": "mypage = this\n\nif (typeof scenario_name == 'undefined'){\n  scenario_name = \"happy:POR\"\n}\nconst save_clip_to_page = false\nconst min_blob_bytes = 16000\n\n// formt o advance to next page\nconst form = document.getElementById('page-form')\n\n// set up display click behavior\nconst button = document.getElementById('buttons')\nconst overlay = document.getElementById('overlay')\nbutton.onclick = function() {\n  if (\"block\" || \"\" == overlay.style.display){\n    overlay.style.display = \"none\"\n    window.scrollTo(0, 0);\n  }\n}\n\n// set up basic variables for recording\nconst component = this;\nconst record = document.querySelector('.record');\nconst stop = document.querySelector('.stop');\nconst soundClips = document.querySelector('.sound-clips');\nconst canvas = document.querySelector('.visualizer');\nconst mainSection = document.querySelector('.main-controls');\n\n// disable stop button while not recording\nstop.disabled = true;\n\n// visualiser setup - create web audio api context and canvas\n// let audioCtx;\n//const canvasCtx = canvas.getContext(\"2d\");\n\n//main block for doing the audio recording\nif (navigator.mediaDevices.getUserMedia) {\n  console.log('getUserMedia supported.');\n\n  const constraints = { audio: true };\n  let chunks = [];\n\n  let onSuccess = function(stream) {\n    const mediaRecorder = new MediaRecorder(stream);\n\n  /*\n    visualize(stream);\n    audioCtx.suspend()\n  */\n\n    record.onclick = function(e) {\n      e.preventDefault()\n      mediaRecorder.start();\n\n  /*\n      // start the visualizer\n      audioCtx.resume()\n  */\n\n      record.style.background = \"red\";\n\n      stop.disabled = false;\n      record.disabled = true;\n    }\n\n    stop.onclick = function(e) {\n      e.preventDefault()\n      mediaRecorder.stop();\n      record.style.background = \"\";\n      record.style.color = \"\";\n\n      stop.disabled = true;\n      record.disabled = false;\n    }\n\n    mediaRecorder.onstop = function(e) {\n      \n      // stop the visualizer\n      // audioCtx.suspend()\n      //audioCtx.close()\n\n      console.log(\"data available after MediaRecorder.stop() called.\");\n\n      if (save_clip_to_page){\n        const clipName = prompt('Enter a name for your sound clip?','My unnamed clip');\n\n        const clipContainer = document.createElement('article');\n        const clipLabel = document.createElement('p');\n        const audio = document.createElement('audio');\n        const deleteButton = document.createElement('button');\n\n        clipContainer.classList.add('clip');\n        audio.setAttribute('controls', '');\n        deleteButton.textContent = 'Delete';\n        deleteButton.className = 'delete';\n\n        if(clipName === null) {\n          clipLabel.textContent = 'My unnamed clip';\n        } else {\n          clipLabel.textContent = scenario_name;\n        }\n\n        clipContainer.appendChild(audio);\n        clipContainer.appendChild(clipLabel);\n        clipContainer.appendChild(deleteButton);\n        soundClips.appendChild(clipContainer);\n        audio.controls = true;\n      }\n      // \n      \n      const blob = new Blob(chunks, { 'type' : 'audio/ogg; codecs=opus' });\n      chunks = [];\n      const audioURL = window.URL.createObjectURL(blob);\n      if (save_clip_to_page){\n        audio.src = audioURL;\n      }\n\n      console.log(\"recorder stopped\");\n      console.log(\"chunk length is: \" + chunks.length)\n      console.log(\"blob size is: \" + blob.size)      \n\n      // Check size of blob before moving on\n      \n      if (blob.size <= min_blob_bytes){\n        alert('Not enough audio was recorded! You either did not speak aloud or read the scenario too quickly! Please reload and try again.')\n        return\n      }\n      \n      // Here we add to options.data to store off this data\n      var reader = new FileReader();\n      reader.readAsDataURL(blob);\n      reader.onloadend = function() {\n          var base64data = reader.result;\n          component.options.datastore.set(\n            'audio:'+scenario_name, base64data\n          )\n          console.log('saved blob to data')\n      }\n\n      if (save_clip_to_page){\n        deleteButton.onclick = function(e) {\n          let evtTgt = e.target;\n          evtTgt.parentNode.parentNode.removeChild(evtTgt.parentNode);\n        }\n\n        clipLabel.onclick = function() {\n          const existingName = clipLabel.textContent;\n          const newClipName = prompt('Enter a new name for your sound clip?');\n          if(newClipName === null) {\n            clipLabel.textContent = existingName;\n          } else {\n            clipLabel.textContent = newClipName;\n          }\n        }\n      }\n\n      mypage.submit()\n    }\n\n    mediaRecorder.ondataavailable = function(e) {\n      chunks.push(e.data);\n    }\n  }\n\n  let onError = function(err) {\n    console.log('The following error occured: ' + err);\n  }\n\n  // Pass media audio to onSuccess function to start recording\n  navigator.mediaDevices.getUserMedia(constraints).then(onSuccess, onError);\n\n} else {\n   alert.log('media recording not supported in your browser! Please exit the experiment');\n}\n/*\nfunction visualize(stream) {\n  if(!audioCtx) {\n    audioCtx = new AudioContext();\n  }\n\n  const source = audioCtx.createMediaStreamSource(stream);\n\n  const analyser = audioCtx.createAnalyser();\n  analyser.fftSize = 2048;\n  const bufferLength = analyser.frequencyBinCount;\n  const dataArray = new Uint8Array(bufferLength);\n\n  source.connect(analyser);\n\n  draw()\n\n  function draw() {\n    const WIDTH = canvas.width\n    const HEIGHT = canvas.height;\n\n    requestAnimationFrame(draw);\n\n    analyser.getByteTimeDomainData(dataArray);\n\n    canvasCtx.fillStyle = 'rgb(200, 200, 200)';\n    canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);\n\n    canvasCtx.lineWidth = 2;\n    canvasCtx.strokeStyle = 'rgb(0, 0, 0)';\n\n    canvasCtx.beginPath();\n\n    let sliceWidth = WIDTH * 1.0 / bufferLength;\n    let x = 0;\n\n    for(let i = 0; i < bufferLength; i++) {\n\n      let v = dataArray[i] / 128.0;\n      let y = v * HEIGHT/2;\n\n      if(i === 0) {\n        canvasCtx.moveTo(x, y);\n      } else {\n        canvasCtx.lineTo(x, y);\n      }\n\n      x += sliceWidth;\n    }\n\n    canvasCtx.lineTo(canvas.width, canvas.height/2);\n    canvasCtx.stroke();\n\n  }\n}\n*/\n/*\nwindow.onresize = function() {\n  canvas.width = mainSection.offsetWidth;\n}\n\nwindow.onresize();\n*/"
+            }
+          ]
+        ]
+      },
+      "title": "Scenario Page",
+      "width": "m",
+      "_tab": "Scripts"
+    },
+    "10": {
+      "id": "10",
+      "type": "lab.html.Page",
+      "items": {
+        "rows": [
+          [
+            {
+              "type": "text",
+              "title": "You have recorded a scenario",
+              "content": "Great job!"
+            }
+          ]
+        ]
+      },
+      "scrollTop": true,
+      "submitButtonText": "Continue →",
+      "submitButtonPosition": "hidden",
+      "files": {
+        "rows": []
+      },
+      "responses": {
+        "rows": [
+          [
+            "",
+            "",
+            "",
+            ""
+          ]
+        ]
+      },
+      "parameters": {
+        "rows": [
+          [
+            {
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        ]
+      },
+      "messageHandlers": {
+        "rows": [
+          [
+            {
+              "title": "",
+              "message": "",
+              "code": ""
+            }
+          ]
+        ]
+      },
+      "title": "Great Job"
     },
     "root": {
       "id": "root",
       "title": "root",
       "type": "lab.flow.Sequence",
       "children": [
+        "9",
+        "10",
         "2"
       ],
       "parameters": {
@@ -88,7 +201,7 @@
   },
   "version": [
     20,
-    0,
+    1,
     1
   ],
   "files": {
@@ -98,7 +211,7 @@
         "source": "library"
       },
       "style.css": {
-        "content": "data:text/css,%2F*%20Please%20define%20your%20custom%20styles%20here%20*%2F",
+        "content": "data:text/css,%2F*%0A*%20%7B%0A%20%20margin%3A%200%3B%0A%20%20padding%3A%200%3B%0A%20%20box-sizing%3A%20border-box%3B%0A%7D%0A%0Ahtml%2C%20body%20%7B%0A%20%20height%3A%20100%25%3B%0A%7D%0A%0Abody%20%7B%0A%20%20font-family%3A%20'Helvetica%20Neue'%2C%20Helvetica%2C%20Arial%2C%20sans-serif%3B%0A%20%20font-size%3A%200.8rem%3B%0A%7D%0A*%2F%0A%0A.wrapper%20%7B%0A%20%20height%3A%20100%25%3B%0A%20%20display%3A%20flex%3B%0A%20%20flex-direction%3A%20column%3B%0A%7D%0A%2F*%0Ah1%2C%20h2%20%7B%0A%20%20font-size%3A%202rem%3B%0A%20%20text-align%3A%20center%3B%0A%20%20font-weight%3A%20normal%3B%0A%20%20padding%3A%200.5rem%200%200%200%3B%0A%7D%0A*%2F%0A.main-controls%20%7B%0A%20%20padding%3A%200.5rem%200%3B%0A%7D%0A%0Acanvas%20%7B%0A%20%20display%3A%20block%3B%0A%20%20margin-bottom%3A%200.5rem%3B%0A%7D%0A%0A%23buttons%20%7B%0A%20%20%2F%2Fdisplay%3A%20flex%3B%0A%20%20flex-direction%3A%20row%3B%0A%20%20justify-content%3A%20space-between%3B%0A%7D%0A%0A%23buttons%20scenario_button%20%7B%0A%20%20font-size%3A%201rem%3B%0A%20%20padding%3A%201rem%3B%0A%20%20width%3A%20calc(50%25%20-%200.25rem)%3B%0A%7D%0A%2F*%0Ascenario_button%20%7B%0A%20%20font-size%3A%201rem%3B%0A%20%20background%3A%20%230088cc%3B%0A%20%20text-align%3A%20center%3B%0A%20%20color%3A%20white%3B%0A%20%20border%3A%20none%3B%0A%20%20transition%3A%20all%200.2s%3B%0A%20%20padding%3A%200.5rem%3B%0A%7D%0A*%2F%0A%0Ascenario_button%20%7B%0A%20%20transition%3A%20all%200.2s%3B%0A%7D%0A%0Ascenario_button%3Ahover%2C%20scenario_button%3Afocus%20%7B%0A%20%20box-shadow%3A%20inset%200px%200px%2010px%20rgba(255%2C%20255%2C%20255%2C%201)%3B%0A%20%20background%3A%20%230ae%3B%0A%7D%0A%0Ascenario_button%3Aactive%20%7B%0A%20%20box-shadow%3A%20inset%200px%200px%2020px%20rgba(0%2C0%2C0%2C0.5)%3B%0A%20%20transform%3A%20translateY(2px)%3B%0A%7D%0A%0A%0A%2F*%20Make%20the%20clips%20use%20as%20much%20space%20as%20possible%2C%20and%0A%20*%20also%20show%20a%20scrollbar%20when%20there%20are%20too%20many%20clips%20to%20show%0A%20*%20in%20the%20available%20space%20*%2F%0A.sound-clips%20%7B%0A%20%20flex%3A%201%3B%0A%20%20overflow%3A%20auto%3B%0A%7D%0A%0Asection%2C%20article%20%7B%0A%20%20display%3A%20block%3B%0A%7D%0A%0A.clip%20%7B%0A%20%20padding-bottom%3A%201rem%3B%0A%7D%0A%0Aaudio%20%7B%0A%20%20width%3A%20100%25%3B%0A%20%20display%3A%20block%3B%0A%20%20margin%3A%201rem%20auto%200.5rem%3B%0A%7D%0A%0A.clip%20p%20%7B%0A%20%20display%3A%20inline-block%3B%0A%20%20font-size%3A%201rem%3B%0A%7D%0A%0A.clip%20scenario_button%20%7B%0A%20%20font-size%3A%201rem%3B%0A%20%20float%3A%20right%3B%0A%7D%0A%0Ascenario_button.delete%20%7B%0A%20%20background%3A%20%23f00%3B%0A%20%20padding%3A%200.5rem%200.75rem%3B%0A%20%20font-size%3A%200.8rem%3B%0A%7D%0A%0A%2F*%20Checkbox%20hack%20to%20control%20information%20box%20display%20*%2F%0A%0Alabel%20%7B%0A%20%20font-size%3A%203rem%3B%0A%20%20position%3A%20absolute%3B%0A%20%20top%3A%202px%3B%0A%20%20right%3A%203px%3B%0A%20%20z-index%3A%205%3B%0A%20%20cursor%3A%20pointer%3B%0A%20%20background-color%3A%20black%3B%0A%20%20border-radius%3A%2010px%3B%0A%7D%0A%0Ainput%5Btype%3Dcheckbox%5D%20%7B%0A%20%20%20position%3A%20absolute%3B%0A%20%20%20top%3A%20-100px%3B%0A%7D%0A%0Aaside%20%7B%0A%20%20position%3A%20fixed%3B%0A%20%20top%3A%200%3B%0A%20%20left%3A%200%3B%0A%20%20width%3A%20100%25%3B%0A%20%20height%3A%20100%25%3B%0A%20%20transform%3A%20translateX(100%25)%3B%0A%20%20transition%3A%200.3s%20all%20ease-out%3B%0A%20%20background-color%3A%20%23efefef%3B%0A%20%20padding%3A%201rem%3B%0A%7D%0A%0Aaside%20p%20%7B%0A%20%20font-size%3A%201.2rem%3B%0A%20%20margin%3A%200.5rem%200%3B%0A%7D%0A%0Aaside%20a%20%7B%0A%20%20color%3A%20%23666%3B%0A%7D%0A%0A%2F*%20Toggled%20State%20of%20information%20box%20*%2F%0Ainput%5Btype%3Dcheckbox%5D%3Achecked%20~%20aside%20%7B%0A%20%20transform%3A%20translateX(0)%3B%0A%7D%0A%0A%2F*%20Cursor%20when%20clip%20name%20is%20clicked%20over%20*%2F%0A%0A.clip%20p%20%7B%0A%20%20cursor%3A%20pointer%3B%0A%7D%0A%0A%2F*%20Adjustments%20for%20wider%20screens%20*%2F%0A%40media%20all%20and%20(min-width%3A%20800px)%20%7B%0A%20%20%2F*%20Don't%20take%20all%20the%20space%20as%20readability%20is%20lost%20when%20line%20length%0A%20%20%20%20%20goes%20past%20a%20certain%20size%20*%2F%0A%20%20.wrapper%20%7B%0A%20%20%20%20width%3A%2090%25%3B%0A%20%20%20%20max-width%3A%201000px%3B%0A%20%20%20%20margin%3A%200%20auto%3B%0A%20%20%7D%0A%7D%0A%0A%2F*%20Click%20to%20start%20overlay%20*%2F%0A.bigtext%20%7B%0A%20%20font-size%3A%2050px%3B%0A%7D%0A%0A%23overlay%20%7B%0A%20%20position%3A%20fixed%3B%0A%20%20display%3A%20block%3B%0A%20%20width%3A%20100%25%3B%0A%20%20height%3A%20100%25%3B%0A%20%20top%3A%200%3B%0A%20%20left%3A%200%3B%0A%20%20right%3A%200%3B%0A%20%20bottom%3A%200%3B%0A%20%20background-color%3A%20rgba(0%2C0%2C0%2C0.75)%3B%0A%20%20z-index%3A%202%3B%0A%20%20cursor%3A%20pointer%3B%0A%7D%0A%0A%23text%7B%0A%20%20position%3A%20absolute%3B%0A%20%20top%3A%2050%25%3B%0A%20%20left%3A%2050%25%3B%0A%20%20color%3A%20white%3B%0A%20%20transform%3A%20translate(-50%25%2C-50%25)%3B%0A%20%20-ms-transform%3A%20translate(-50%25%2C-50%25)%3B%0A%7D",
         "source": "library"
       }
     },
