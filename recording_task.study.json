@@ -121,14 +121,14 @@
             {
               "type": "text",
               "title": "You have recorded a scenario",
-              "content": "Great job!"
+              "content": "Great job! Hit submit to download."
             }
           ]
         ]
       },
       "scrollTop": true,
       "submitButtonText": "Continue →",
-      "submitButtonPosition": "hidden",
+      "submitButtonPosition": "right",
       "files": {
         "rows": []
       },
